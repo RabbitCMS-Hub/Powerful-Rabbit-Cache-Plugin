@@ -23,12 +23,13 @@ Const	CI_SAAT 	= 1
 Const	CI_GUN 		= 2
 
 Class Powerful_Rabbit_Cache_Plugin
-	Private PLUGIN_CODE, PLUGIN_DB_NAME, PLUGIN_NAME, PLUGIN_VERSION, PLUGIN_CREDITS, PLUGIN_GIT, PLUGIN_DEV_URL, PLUGIN_FILES_ROOT, PLUGIN_ICON
+	Private PLUGIN_CODE, PLUGIN_DB_NAME, PLUGIN_NAME, PLUGIN_VERSION, PLUGIN_CREDITS, PLUGIN_GIT, PLUGIN_DEV_URL, PLUGIN_FILES_ROOT, PLUGIN_ICON, PLUGIN_REMOVABLE
 
 	Private ObjSCfso, CacheKomut, fintOnbellekZaman, fintOnbellekAralik, CacheKlasor
 	Private fstrSiteAdresi, fstrCacheDosyaUzanti, fstrCekURL, CacheKomutAdi
 	Private fstrCacheDosyasi, fstrCachedRamAdi, fstrCachedRamZaman, EsasDosyaAdi, CacheDurumuTrueOrFalse, SETTINGS_SUPER_CACHE_ROOT
 	Private exDB, OLUSTURULDU, SUPER_CACHE_FILE_SUBFIX
+
 	'---------------------------------------------------------------
 	' Register Class
 	'---------------------------------------------------------------
@@ -45,12 +46,11 @@ Class Powerful_Rabbit_Cache_Plugin
 		' Register Settings
 		'------------------------------
 		a=GetSettings("PLUGIN:"& PLUGIN_CODE &"", PLUGIN_CODE&"_")
-		a=GetSettings(""&PLUGIN_CODE&"_PLUGIN_NAME", "Powerful Rabbit Cache Plugin")
+		a=GetSettings(""&PLUGIN_CODE&"_PLUGIN_NAME", PLUGIN_NAME)
 		a=GetSettings(""&PLUGIN_CODE&"_CLASS", "Powerful_Rabbit_Cache_Plugin")
 		a=GetSettings(""&PLUGIN_CODE&"_REGISTERED", ""& Now() &"")
 		a=GetSettings(""&PLUGIN_CODE&"_CODENO", "0")
 		a=GetSettings(""&PLUGIN_CODE&"_ACTIVE", "0")
-		a=GetSettings(""&PLUGIN_CODE&"_ICON", "zmdi zmdi-flash-auto zmdi-hc-fw")
 		a=GetSettings(""&PLUGIN_CODE&"_FOLDER", "Powerful-Rabbit-Cache-Plugin")
 
 		' Register Settings
@@ -58,26 +58,25 @@ Class Powerful_Rabbit_Cache_Plugin
 		DebugTimer ""& PLUGIN_CODE &" class_register() End"
 	End Property
 	'---------------------------------------------------------------
-	'
+	' Register Class
 	'---------------------------------------------------------------
+
 
 	'---------------------------------------------------------------
 	' Plugin Admin Panel Extention
 	'---------------------------------------------------------------
 	Public sub LoadPanel()
-		' Response.Charset = "UTF-8"
-		' Response.Codepage = 1254
-
 		'--------------------------------------------------------
 		' Sub Page 
 		'--------------------------------------------------------
-		If Query.Data("Page") = "DELETE:OneFile" Then
+		If Query.Data("Page") = "REMOVE:OneFile" Then
+			' Call PluginPage("Header")
+
 		    TheFile     = Query.Data("fileName")
 		    TheFilePath = SETTINGS_SUPER_CACHE_ROOT & TheFile
 
 		    Set Fso = CreateObject("Scripting.FileSystemObject" )
 		    If Fso.FileExists( TheFilePath ) = True then
-		        ' Large Sil 
 		        Fso.DeleteFile( TheFilePath ) 
 		        Response.Write "{""status"":200}"
 		    Else
@@ -85,13 +84,14 @@ Class Powerful_Rabbit_Cache_Plugin
 		    End If
 		    Set Fso = Nothing 
 
-		    Call SystemTeardown("destroy")
-    	End If
+			' Call PluginPage("Footer")
+			Call SystemTeardown("destroy")
+		End If
 
 		'--------------------------------------------------------
 		' Sub Page 
 		'--------------------------------------------------------
-		If Query.Data("Page") = "DELETE:CachedFiles" Then
+		If Query.Data("Page") = "REMOVE:CachedFiles" Then
     		Call PluginPage("Header")
     		
     		Call SuperCacheTemizle()
@@ -102,14 +102,69 @@ Class Powerful_Rabbit_Cache_Plugin
 
 		    Call PluginPage("Footer")
 		    Call SystemTeardown("destroy")
-    	End If
+		End If
 
 		'--------------------------------------------------------
 		' Sub Page 
 		'--------------------------------------------------------
 		If Query.Data("Page") = "SHOW:CachedFiles" Then
+    		Call PluginPage("Header")
 
-    	End If
+    		With Response 
+				.Write "<link rel=""stylesheet"" href=""/content/plugins/Powerful-Rabbit-Cache-Plugin/style.css"" />"
+				.Write "<div class=""form-group"">"
+				.Write "    <input type=""text"" class=""form-control"" id=""myInput"" onkeyup=""myFunction()"" placeholder=""Dosya Ara"" />"
+				.Write "</div>"
+				.Write "<div class=""table-responsive"" style=""max-height:400px;overflow-x:scroll"">"
+				.Write "<table id=""myTable"" class=""table table-striped table-bordered table-hovered"">"
+				.Write "<tr class=""tableHead"">"
+				.Write "    <td>Dosya Adı</td>"
+				.Write "    <td>Cache Tarihi</td>"
+				.Write "    <td>Güncelleme Tarihi</td>"
+				.Write "    <td>Boyut</td>"
+				.Write "    <td></td>"
+				.Write "</tr>"
+
+				TotalCacheSize = 0
+				Set ObjSCfso = CreateObject("Scripting.FileSystemObject")
+				Set objKlasor = ObjSCfso.GetFolder(SETTINGS_SUPER_CACHE_ROOT)
+				Set colDosyalar = objKlasor.Files
+
+				i=0
+				For Each objDosya In colDosyalar
+				    TotalCacheSize = TotalCacheSize + objDosya.Size
+
+				.Write "<tr id=""LINE_"& i &""">"
+				.Write "    <td><small>"& objDosya.Name &"</small></td>"
+				.Write "    <td>"& objDosya.DateCreated &"<br><small>"& NeKadarZamanGecti(objDosya.DateCreated) &"</small></td>"
+				.Write "    <td>"& objDosya.DateLastModified &"<br><small>"& NeKadarZamanGecti(objDosya.DateLastModified) &"</small></td>"
+				.Write "    <td>"& BoyutHesapla( objDosya.Size ) &"</td>"
+				.Write "    <td align=""right"">"
+				.Write "    	<div class=""btn-group"">"
+				.Write "        	<a class=""btn btn-sm btn-danger btn--icon-text deleteStaticFile"" href=""javascript:void(0)"" data-filename="""& objDosya.Name &""" data-row=""LINE_"& i &""">"
+				.Write "            	Sil"
+				.Write "        	</a>"
+				.Write "    	</div>"
+				.Write "    </td>"
+				.Write "</tr>"
+				    i=i+1
+				Next
+
+				Set colDosyalar = nothing
+				Set objKlasor = nothing
+				Set ObjSCfso = nothing
+
+				.Write "</table>"
+				.Write "</div>"
+	    		
+				.Write "<script>let CACHE_PLUGIN_CODE='"& PLUGIN_CODE &"';</script>"
+	    		.Write "<script type=""text/javascript"" src=""/content/plugins/Powerful-Rabbit-Cache-Plugin/js/jquery.min.js""></script>"
+	    		.Write "<script type=""text/javascript"" src=""/content/plugins/Powerful-Rabbit-Cache-Plugin/js/app.js""></script>"
+    		End With
+
+		    Call PluginPage("Footer")
+		    Call SystemTeardown("destroy")
+		End If
 
 		'--------------------------------------------------------
 		' Main Page
@@ -118,167 +173,47 @@ Class Powerful_Rabbit_Cache_Plugin
 			'------------------------------------------------------------------------------------------
 				PLUGIN_PANEL_MASTER_HEADER This()
 			'------------------------------------------------------------------------------------------
-		
+			.Write "<div class=""row"">"
+			.Write "    <div class=""col-lg-12 col-sm-12"">"
+			.Write "    	<div class=""alert alert-info"">web.config dosyasına yazma izni vermeyi unutmayın</div>"
+			.Write "    </div>"
+			.Write "    <div class=""col-lg-4 col-sm-12"">"
+			.Write 			QuickSettings("select", ""& PLUGIN_CODE &"_TYPE", "Önbellekleme Türü", "0#Fiziksel Depolama|1#RAM Depolama", TO_FILE)
+			.Write "    </div>"
+			.Write "    <div class=""col-lg-4 col-sm-12"">"
+			.Write 			QuickSettings("select", ""& PLUGIN_CODE &"_TIMING", "Önbellekleme Zamanı", "0#Dakika|1#Saat|2#Gün", TO_FILE)
+			.Write "    </div>"
+			.Write "    <div class=""col-lg-4 col-sm-12"">"
+			.Write 			QuickSettings("number", ""& PLUGIN_CODE &"_TIMING_VAL", "(Dakika,Saat,Gün)' de bir", "", TO_FILE)
+			.Write "    </div>"
+			.Write "    <div class=""col-lg-6 col-sm-12"">"
+			.Write 			QuickSettings("select", ""& PLUGIN_CODE &"_COMPRESSOR", "Belleklenmiş Dosyayı Sıkıştır", "0#Hayır|1#Evet", TO_FILE)
+			.Write "    </div>"
+			.Write "    <div class=""col-lg-6 col-sm-12"">"
+			.Write 			QuickSettings("tag", ""& PLUGIN_CODE &"_EXCLUDE", "Cache Alınmayacak Uzantı ve Adres Belirteçleri", "", TO_FILE)
+			.Write "    </div>"
+			.Write "    <div class=""col-lg-12 col-sm-12"">"
+			.Write "    	<p class=""alert alert-info cms-style"">rabbitCMS Super Cache sistemi kullanmış olduğunuz CMS için özel olarak geliştirilmiş ön bellekleme modülüdür. Bu modül, web sayfanızın en az güncellenen sayfaların en son halinin statik bir kopyasını anlık olarak adresler ve gelen ziyaretçilere veritabanı bağlantısı dahi sağlanmadan önce sunar. Böylece %95'e kadar daha hızlı bir web sitesi gösterilirken, daha yüksek performanslı çalışan bir sisteme sahip olursunuz. Belleklenen dosyayı sıkıştırma algoritması ile %30'a kadar daha küçük bir çıktı sunarak sunucu-ziyaretçi arasında ki trafiğin hızlanmasını sağlar ve CloudFlare üzerinden servis edilecek HTML/Text türünde sunulur. Sisteme giriş yapmış kullanıcılar ise belirlenen dinamik sayfalar için önbelleklemeyi pas geçerek görüntülerken, yönetici girişi yapanlar her zaman dinamik sonuçları görüntüler.</p>"
+			.Write "    </div>"
+
+			.Write "</div>"
+
+			.Write "<div class=""row"">"
+			.Write "    <div class=""col-lg-12 col-sm-12"">"
+			.Write "        <a open-iframe href=""ajax.asp?Cmd=PluginSettings&PluginName="& PLUGIN_CODE &"&Page=SHOW:CachedFiles"" class=""btn btn-sm btn-primary"">"
+			.Write "        	Önbelleklenmiş Dosyaları Göster"
+			.Write "        </a>"
+			.Write "        <a open-iframe href=""ajax.asp?Cmd=PluginSettings&PluginName="& PLUGIN_CODE &"&Page=REMOVE:CachedFiles"" class=""btn btn-sm btn-danger"">"
+			.Write "        	Tüm Önbelleği Temizle"
+			.Write "        </a>"
+			.Write "    </div>"
+			.Write "</div>"
 		End With
-	%>
-<!-- PAGE -->
-		<%
-		If Query.Data("Page") = "SHOW:CachedFiles" Then
-		%>
-			<%Call PluginPage("Header")%>
-			<style>#myTable { border-collapse: collapse; width: 100%; } #myTable th, #myTable td { } #myTable tr { } #myTable tr.tableHead, #myTable tr:hover { }</style>
-			<div class="form-group">
-			    <input type="text" class="form-control" id="myInput" onkeyup="myFunction()" placeholder="Dosya Ara" />
-			</div>
-			<div class="table-responsive" style="max-height: 400px; overflow-x:scroll">
-			<table id="myTable" class="table table-striped table-bordered table-hovered">
-			<tr class="tableHead">
-			    <td>Dosya Adı</td>
-			    <td>Cache Tarihi</td>
-			    <td>Güncelleme Tarihi</td>
-			    <td>Boyut</td>
-			    <td></td>
-			</tr>
-			<%
-			TotalCacheSize = 0
-			Set ObjSCfso = CreateObject("Scripting.FileSystemObject")
-			Set objKlasor = ObjSCfso.GetFolder(SETTINGS_SUPER_CACHE_ROOT)
-			Set colDosyalar = objKlasor.Files
-
-			i=0
-			For Each objDosya In colDosyalar
-			    TotalCacheSize = TotalCacheSize + objDosya.Size
-			%>
-			<tr id="LINE_<%=i%>">
-			    <td><small><%=objDosya.Name%></small></td>
-			    <td><%=objDosya.DateCreated%><br><small><%=NeKadarZamanGecti(objDosya.DateCreated)%></small></td>
-			    <td><%=objDosya.DateLastModified%><br><small><%=NeKadarZamanGecti(objDosya.DateLastModified)%></small></td>
-			    <td><%=BoyutHesapla( objDosya.Size )%></td>
-			    <td align="right">
-			    	<div class="btn-group">
-			        	<!-- <a class="btn btn-sm btn-primary btn--icon-text" href="/content/cache/<%=objDosya.Name%>" target="_blank">
-			            	Görüntüle
-			        	</a> -->
-			        	<a class="btn btn-sm btn-danger btn--icon-text deleteStaticFile" href="javascript:void(0)" data-filename="<%=objDosya.Name%>" data-row="LINE_<%=i%>">
-			            	Sil
-			        	</a>
-			    	</div>
-			    </td>
-			</tr>
-			<%
-			    i=i+1
-			Next
-
-			Set colDosyalar = nothing
-			Set objKlasor = nothing
-			Set ObjSCfso = nothing
-			%>
-			</table>
-			</div>
-    		
-    		<script type="text/javascript" src="vendors/bower_components/jquery/dist/jquery.min.js"></script>
-			<script>
-			function myFunction() {
-			  var input, filter, table, tr, td, i, txtValue;
-			  input = document.getElementById("myInput");
-			  filter = input.value.toUpperCase();
-			  table = document.getElementById("myTable");
-			  tr = table.getElementsByTagName("tr");
-
-			  for (i = 0; i < tr.length; i++) {
-			    td = tr[i].getElementsByTagName("td")[0];
-			    if (td) {
-			      txtValue = td.textContent || td.innerText;
-			      if (txtValue.toUpperCase().indexOf(filter) > -1) {
-			        tr[i].style.display = "";
-			      } else {
-			        tr[i].style.display = "none";
-			      }
-			    }
-			  }
-			};
-
-			$('.deleteStaticFile').unbind('click');
-			$('.deleteStaticFile').click(function(event) {
-			    let RowID       = $(this).attr('data-row');
-			    let FileName    = $(this).attr('data-filename');
-
-			    $.ajax({
-			        url: "ajax.asp?Cmd=PluginSettings&PluginName=<%=PLUGIN_CODE%>_&Page=DELETE:OneFile",
-			        type: "POST",
-			        data: {
-			            fileName: FileName
-			        },
-			        success: function(data) {
-			            alert('Başarılı');
-			            $('#'+RowID).remove();
-			        },
-			        error: function(e) {
-			            alert('Hata');
-			        }
-			    });
-			});
-			</script>
-			<%Call PluginPage("Footer")%>
-		<%
-			Call SystemTeardown("destroy")
-		End If
-		%>
-<!-- PAGE -->
-
-
-	<div class="row">
-        <div class="col-lg-6 col-sm-12">
-        	<div class="alert alert-info">web.config dosyasına yazma izni vermeyi unutmayın</div>
-        </div>
-    	<!-- Key -->
-        <div class="col-lg-6 col-sm-12">
-            <%=QuickSettings("checkbox", "SUPER_CACHE_ACTIVE", "SuperCache Durumu", "", TO_FILE)%>
-        </div>
-    	<!-- Key -->
-    	<!-- Key -->
-        <div class="col-lg-4 col-sm-12">
-            <%=QuickSettings("select", "SUPER_CACHE_TYPE", "Önbellekleme Türü", "0#Fiziksel Depolama|1#RAM Depolama", TO_FILE)%>
-        </div>
-    	<!-- Key -->
-    	<!-- Key -->
-        <div class="col-lg-4 col-sm-12">
-            <%=QuickSettings("select", "SUPER_CACHE_TIMING", "Önbellekleme Zamanı", "0#Dakika|1#Saat|2#Gün", TO_FILE)%>
-        </div>
-    	<!-- Key -->
-    	<!-- Key -->
-        <div class="col-lg-4 col-sm-12">
-            <%=QuickSettings("number", "SUPER_CACHE_TIMING_VAL", "(Dakika,Saat,Gün)' de bir", "", TO_FILE)%>
-        </div>
-    	<!-- Key -->
-    	<!-- Key -->
-        <div class="col-lg-6 col-sm-12">
-            <%=QuickSettings("select", "SUPER_CACHE_COMPRESSOR", "Belleklenmiş Dosyayı Sıkıştır", "0#Hayır|1#Evet", TO_FILE)%>
-        </div>
-    	<!-- Key --> 
-        <!-- Key -->
-        <div class="col-lg-6 col-sm-12">
-            <%=QuickSettings("tag", "SUPER_CACHE_EXCLUDE", "Cache Alınmayacak Uzantı ve Adres Belirteçleri", "", TO_FILE)%>
-        </div>
-        <!-- Key -->
-	</div>
-    <div class="row">
-        <div class="col-lg-12 col-sm-12">
-            <p class="alert alert-info cms-style">rabbitCMS Super Cache sistemi kullanmış olduğunuz CMS için özel olarak geliştirilmiş ön bellekleme modülüdür. Bu modül, web sayfanızın en az güncellenen sayfaların en son halinin statik bir kopyasını anlık olarak adresler ve gelen ziyaretçilere veritabanı bağlantısı dahi sağlanmadan önce sunar. Böylece %95'e kadar daha hızlı bir web sitesi gösterilirken, daha yüksek performanslı çalışan bir sisteme sahip olursunuz. Belleklenen dosyayı sıkıştırma algoritması ile %30'a kadar daha küçük bir çıktı sunarak sunucu-ziyaretçi arasında ki trafiğin hızlanmasını sağlar ve CloudFlare üzerinden servis edilecek HTML/Text türünde sunulur. Sisteme giriş yapmış kullanıcılar ise belirlenen dinamik sayfalar için önbelleklemeyi pas geçerek görüntülerken, yönetici girişi yapanlar her zaman dinamik sonuçları görüntüler.</p>
-        </div>
-        <div class="col-lg-12 col-sm-12">
-            <a open-iframe href="ajax.asp?Cmd=PluginSettings&PluginName=<%=PLUGIN_CODE%>_&Page=SHOW:CachedFiles" class="btn btn-sm btn-primary">
-            	Önbelleklenmiş Dosyaları Göster
-            </a>
-            <a open-iframe href="ajax.asp?Cmd=PluginSettings&PluginName=<%=PLUGIN_CODE%>_&Page=DELETE:CachedFiles" class="btn btn-sm btn-danger">
-            	Tüm Önbelleği Temizle
-            </a>
-        </div>
-    </div>
-	<%End Sub
+	End Sub
 	'---------------------------------------------------------------
-	' Plugin Admin Panel Extention
+	'
 	'---------------------------------------------------------------
+
 
 	'---------------------------------------------------------------
 	' Class First Init
@@ -295,6 +230,7 @@ Class Powerful_Rabbit_Cache_Plugin
     	PLUGIN_GIT 				= "https://github.com/RabbitCMS-Hub/Powerful-Rabbit-Cache-Plugin"
     	PLUGIN_DEV_URL 			= "https://adjans.com.tr"
     	PLUGIN_ICON 			= "zmdi-http"
+    	PLUGIN_REMOVABLE 		= False
     	PLUGIN_FILES_ROOT 		= PLUGIN_VIRTUAL_FOLDER(This)
     	'-------------------------------------------------------------------------------------
     	' PluginTemplate Main Variables
@@ -374,18 +310,12 @@ Class Powerful_Rabbit_Cache_Plugin
 	'---------------------------------------------------------------
 	' Plugin Defines
 	'---------------------------------------------------------------
-	Public Property Get PluginCredits()
-		PluginCredits = PLUGIN_CREDITS
-	End Property
-
 	Public Property Get PluginCode()
 		PluginCode = PLUGIN_CODE
 	End Property
-
 	Public Property Get PluginName()
 		PluginName = PLUGIN_NAME
 	End Property
-
 	Public Property Get PluginVersion()
 		PluginVersion = PLUGIN_VERSION
 	End Property
@@ -401,9 +331,15 @@ Class Powerful_Rabbit_Cache_Plugin
 	Public Property Get PluginIcon()
 		PluginIcon = PLUGIN_ICON
 	End Property
+	Public Property Get PluginRemovable()
+		PluginRemovable = PLUGIN_REMOVABLE
+	End Property
+	Public Property Get PluginCredits()
+		PluginCredits = PLUGIN_CREDITS
+	End Property
 
 	Private Property Get This()
-		This = Array(PLUGIN_CODE, PLUGIN_NAME, PLUGIN_VERSION, PLUGIN_GIT, PLUGIN_DEV_URL, PLUGIN_FILES_ROOT, PLUGIN_ICON)
+		This = Array(PLUGIN_CODE, PLUGIN_NAME, PLUGIN_VERSION, PLUGIN_GIT, PLUGIN_DEV_URL, PLUGIN_FILES_ROOT, PLUGIN_ICON, PLUGIN_REMOVABLE, PLUGIN_CREDITS)
 	End Property
 	'---------------------------------------------------------------
 	' Plugin Defines

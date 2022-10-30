@@ -1,0 +1,12 @@
+#myTable {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+#myTable th,
+#myTable td {}
+
+#myTable tr {}
+
+#myTable tr.tableHead,
+#myTable tr:hover {}
