@@ -23,7 +23,7 @@ Const	CI_SAAT 	= 1
 Const	CI_GUN 		= 2
 
 Class Powerful_Rabbit_Cache_Plugin
-	Private PLUGIN_CODE, PLUGIN_DB_NAME, PLUGIN_NAME, PLUGIN_VERSION, PLUGIN_CREDITS, PLUGIN_GIT, PLUGIN_DEV_URL, PLUGIN_FILES_ROOT, PLUGIN_ICON, PLUGIN_REMOVABLE
+	Private PLUGIN_CODE, PLUGIN_DB_NAME, PLUGIN_NAME, PLUGIN_VERSION, PLUGIN_CREDITS, PLUGIN_GIT, PLUGIN_DEV_URL, PLUGIN_FILES_ROOT, PLUGIN_ICON, PLUGIN_REMOVABLE, PLUGIN_ROOT, PLUGIN_FOLDER_NAME
 
 	Private ObjSCfso, CacheKomut, fintOnbellekZaman, fintOnbellekAralik, CacheKlasor
 	Private fstrSiteAdresi, fstrCacheDosyaUzanti, fstrCekURL, CacheKomutAdi
@@ -174,22 +174,22 @@ Class Powerful_Rabbit_Cache_Plugin
 				PLUGIN_PANEL_MASTER_HEADER This()
 			'------------------------------------------------------------------------------------------
 			.Write "<div class=""row"">"
-			.Write "    <div class=""col-lg-12 col-sm-12"">"
+			.Write "    <div class=""col-lg-12 col-sm-12 mb-2"">"
 			.Write "    	<div class=""alert alert-info"">web.config dosyasına yazma izni vermeyi unutmayın</div>"
 			.Write "    </div>"
-			.Write "    <div class=""col-lg-4 col-sm-12"">"
+			.Write "    <div class=""col-lg-3 col-sm-12"">"
 			.Write 			QuickSettings("select", ""& PLUGIN_CODE &"_TYPE", "Önbellekleme Türü", "0#Fiziksel Depolama|1#RAM Depolama", TO_FILE)
 			.Write "    </div>"
-			.Write "    <div class=""col-lg-4 col-sm-12"">"
+			.Write "    <div class=""col-lg-3 col-sm-12"">"
 			.Write 			QuickSettings("select", ""& PLUGIN_CODE &"_TIMING", "Önbellekleme Zamanı", "0#Dakika|1#Saat|2#Gün", TO_FILE)
 			.Write "    </div>"
-			.Write "    <div class=""col-lg-4 col-sm-12"">"
+			.Write "    <div class=""col-lg-3 col-sm-12"">"
 			.Write 			QuickSettings("number", ""& PLUGIN_CODE &"_TIMING_VAL", "(Dakika,Saat,Gün)' de bir", "", TO_FILE)
 			.Write "    </div>"
-			.Write "    <div class=""col-lg-6 col-sm-12"">"
+			.Write "    <div class=""col-lg-3 col-sm-12"">"
 			.Write 			QuickSettings("select", ""& PLUGIN_CODE &"_COMPRESSOR", "Belleklenmiş Dosyayı Sıkıştır", "0#Hayır|1#Evet", TO_FILE)
 			.Write "    </div>"
-			.Write "    <div class=""col-lg-6 col-sm-12"">"
+			.Write "    <div class=""col-lg-12 col-sm-12"">"
 			.Write 			QuickSettings("tag", ""& PLUGIN_CODE &"_EXCLUDE", "Cache Alınmayacak Uzantı ve Adres Belirteçleri", "", TO_FILE)
 			.Write "    </div>"
 			.Write "    <div class=""col-lg-12 col-sm-12"">"
@@ -200,6 +200,9 @@ Class Powerful_Rabbit_Cache_Plugin
 
 			.Write "<div class=""row"">"
 			.Write "    <div class=""col-lg-12 col-sm-12"">"
+			.Write "        <a open-iframe href=""ajax.asp?Cmd=PluginSettings&PluginName="& PLUGIN_CODE &"&Page=SHOW:CachedFiles"" class=""btn btn-sm btn-primary"">"
+			.Write "        	Önbelleklenmiş Dosyaları Göster"
+			.Write "        </a>"
 			.Write "        <a open-iframe href=""ajax.asp?Cmd=PluginSettings&PluginName="& PLUGIN_CODE &"&Page=SHOW:CachedFiles"" class=""btn btn-sm btn-primary"">"
 			.Write "        	Önbelleklenmiş Dosyaları Göster"
 			.Write "        </a>"
@@ -222,16 +225,19 @@ Class Powerful_Rabbit_Cache_Plugin
     	'-------------------------------------------------------------------------------------
     	' PluginTemplate Main Variables
     	'-------------------------------------------------------------------------------------
-    	PLUGIN_NAME 			= "Powerful Rabbit Cache Plugin"
     	PLUGIN_CODE  			= "SUPER_CACHE"
-    	PLUGIN_DB_NAME 			= "plugin_template_db" ' tbl_plugin_XXXXXXX
+    	PLUGIN_NAME 			= "Powerful Rabbit Cache Plugin"
     	PLUGIN_VERSION 			= "1.3.1"
-    	PLUGIN_CREDITS 			= "Coded By @Fatih Aytekin Redevelopment @badursun Anthony Burak DURSUN"
     	PLUGIN_GIT 				= "https://github.com/RabbitCMS-Hub/Powerful-Rabbit-Cache-Plugin"
     	PLUGIN_DEV_URL 			= "https://adjans.com.tr"
+    	PLUGIN_FILES_ROOT 		= PLUGIN_VIRTUAL_FOLDER(This)
     	PLUGIN_ICON 			= "zmdi-http"
     	PLUGIN_REMOVABLE 		= False
-    	PLUGIN_FILES_ROOT 		= PLUGIN_VIRTUAL_FOLDER(This)
+    	PLUGIN_CREDITS 			= "Coded By @Fatih Aytekin Redevelopment @badursun Anthony Burak DURSUN"
+    	PLUGIN_ROOT 			= PLUGIN_DIST_FOLDER_PATH(This)
+    	PLUGIN_FOLDER_NAME 		= "Whatsapp-Widget-Plugin"
+
+    	PLUGIN_DB_NAME 			= "plugin_template_db" ' tbl_plugin_XXXXXXX
     	'-------------------------------------------------------------------------------------
     	' PluginTemplate Main Variables
     	'-------------------------------------------------------------------------------------
@@ -310,36 +316,21 @@ Class Powerful_Rabbit_Cache_Plugin
 	'---------------------------------------------------------------
 	' Plugin Defines
 	'---------------------------------------------------------------
-	Public Property Get PluginCode()
-		PluginCode = PLUGIN_CODE
-	End Property
-	Public Property Get PluginName()
-		PluginName = PLUGIN_NAME
-	End Property
-	Public Property Get PluginVersion()
-		PluginVersion = PLUGIN_VERSION
-	End Property
-	Public Property Get PluginGit()
-		PluginGit = PLUGIN_GIT
-	End Property
-	Public Property Get PluginDevURL()
-		PluginDevURL = PLUGIN_DEV_URL
-	End Property
-	Public Property Get PluginFolder()
-		PluginFolder = PLUGIN_FILES_ROOT
-	End Property
-	Public Property Get PluginIcon()
-		PluginIcon = PLUGIN_ICON
-	End Property
-	Public Property Get PluginRemovable()
-		PluginRemovable = PLUGIN_REMOVABLE
-	End Property
-	Public Property Get PluginCredits()
-		PluginCredits = PLUGIN_CREDITS
-	End Property
+	Public Property Get PluginCode() 		: PluginCode = PLUGIN_CODE 					: End Property
+	Public Property Get PluginName() 		: PluginName = PLUGIN_NAME 					: End Property
+	Public Property Get PluginVersion() 	: PluginVersion = PLUGIN_VERSION 			: End Property
+	Public Property Get PluginGit() 		: PluginGit = PLUGIN_GIT 					: End Property
+	Public Property Get PluginDevURL() 		: PluginDevURL = PLUGIN_DEV_URL 			: End Property
+	Public Property Get PluginFolder() 		: PluginFolder = PLUGIN_FILES_ROOT 			: End Property
+	Public Property Get PluginIcon() 		: PluginIcon = PLUGIN_ICON 					: End Property
+	Public Property Get PluginRemovable() 	: PluginRemovable = PLUGIN_REMOVABLE 		: End Property
+	Public Property Get PluginCredits() 	: PluginCredits = PLUGIN_CREDITS 			: End Property
+	Public Property Get PluginRoot() 		: PluginRoot = PLUGIN_ROOT 					: End Property
+	Public Property Get PluginFolderName() 	: PluginFolderName = PLUGIN_FOLDER_NAME 	: End Property
+	Public Property Get PluginDBTable() 	: PluginDBTable = IIf(Len(PLUGIN_DB_NAME)>2, "tbl_plugin_"&PLUGIN_DB_NAME, "") 	: End Property
 
 	Private Property Get This()
-		This = Array(PLUGIN_CODE, PLUGIN_NAME, PLUGIN_VERSION, PLUGIN_GIT, PLUGIN_DEV_URL, PLUGIN_FILES_ROOT, PLUGIN_ICON, PLUGIN_REMOVABLE, PLUGIN_CREDITS)
+		This = Array(PluginCode, PluginName, PluginVersion, PluginGit, PluginDevURL, PluginFolder, PluginIcon, PluginRemovable, PluginCredits, PluginRoot, PluginFolderName, PluginDBTable )
 	End Property
 	'---------------------------------------------------------------
 	' Plugin Defines
