@@ -23,7 +23,7 @@ Const	CI_SAAT 	= 1
 Const	CI_GUN 		= 2
 
 Class Powerful_Rabbit_Cache_Plugin
-	Private PLUGIN_CODE, PLUGIN_DB_NAME, PLUGIN_NAME, PLUGIN_VERSION, PLUGIN_CREDITS, PLUGIN_GIT, PLUGIN_DEV_URL, PLUGIN_FILES_ROOT, PLUGIN_ICON, PLUGIN_REMOVABLE, PLUGIN_ROOT, PLUGIN_FOLDER_NAME
+	Private PLUGIN_CODE, PLUGIN_DB_NAME, PLUGIN_NAME, PLUGIN_VERSION, PLUGIN_CREDITS, PLUGIN_GIT, PLUGIN_DEV_URL, PLUGIN_FILES_ROOT, PLUGIN_ICON, PLUGIN_REMOVABLE, PLUGIN_ROOT, PLUGIN_FOLDER_NAME, PLUGIN_AUTOLOAD
 
 	Private ObjSCfso, CacheKomut, fintOnbellekZaman, fintOnbellekAralik, CacheKlasor
 	Private fstrSiteAdresi, fstrCacheDosyaUzanti, fstrCekURL, CacheKomutAdi
@@ -236,24 +236,22 @@ Class Powerful_Rabbit_Cache_Plugin
     	PLUGIN_VERSION 			= "1.3.1"
     	PLUGIN_GIT 				= "https://github.com/RabbitCMS-Hub/Powerful-Rabbit-Cache-Plugin"
     	PLUGIN_DEV_URL 			= "https://adjans.com.tr"
-    	PLUGIN_FILES_ROOT 		= PLUGIN_VIRTUAL_FOLDER(This)
     	PLUGIN_ICON 			= "zmdi-http"
-    	PLUGIN_REMOVABLE 		= False
     	PLUGIN_CREDITS 			= "Coded By @Fatih Aytekin Redevelopment @badursun Anthony Burak DURSUN"
-    	PLUGIN_ROOT 			= PLUGIN_DIST_FOLDER_PATH(This)
-    	PLUGIN_FOLDER_NAME 		= "Whatsapp-Widget-Plugin"
-
+    	PLUGIN_FOLDER_NAME 		= "Powerful-Rabbit-Cache-Plugin"
     	PLUGIN_DB_NAME 			= "plugin_template_db" ' tbl_plugin_XXXXXXX
+    	PLUGIN_REMOVABLE 		= False
+    	PLUGIN_AUTOLOAD 		= False
+    	PLUGIN_ROOT 			= PLUGIN_DIST_FOLDER_PATH(This)
+    	PLUGIN_FILES_ROOT 		= PLUGIN_VIRTUAL_FOLDER(This)
     	'-------------------------------------------------------------------------------------
     	' PluginTemplate Main Variables
     	'-------------------------------------------------------------------------------------
 
+		Set ObjSCfso = CreateObject("Scripting.FileSystemObject")
     	OLUSTURULDU 				= False
     	SETTINGS_SUPER_CACHE_ROOT 	= Server.Mappath( readAppSettings("SUPER_CACHE_PATH") ) & "\"
     	SUPER_CACHE_FILE_SUBFIX 	= readAppSettings("SUPER_CACHE_FILE_SUBFIX")
-		
-		Set ObjSCfso = CreateObject("Scripting.FileSystemObject")
-		
 		'Cache Kontrol Değeri
 		'------------------------------------------------
 		CacheDurumuTrueOrFalse 	= False
@@ -302,6 +300,13 @@ Class Powerful_Rabbit_Cache_Plugin
     	' PluginTemplate Register App
     	'-------------------------------------------------------------------------------------
     	' class_register()
+
+    	'-------------------------------------------------------------------------------------
+    	' Hook Auto Load Plugin
+    	'-------------------------------------------------------------------------------------
+    	If PLUGIN_AUTOLOAD_AT("WEB") = True Then 
+
+    	End If
 	End Sub
 	'---------------------------------------------------------------
 	' Class First Init
@@ -334,9 +339,10 @@ Class Powerful_Rabbit_Cache_Plugin
 	Public Property Get PluginRoot() 		: PluginRoot = PLUGIN_ROOT 					: End Property
 	Public Property Get PluginFolderName() 	: PluginFolderName = PLUGIN_FOLDER_NAME 	: End Property
 	Public Property Get PluginDBTable() 	: PluginDBTable = IIf(Len(PLUGIN_DB_NAME)>2, "tbl_plugin_"&PLUGIN_DB_NAME, "") 	: End Property
+	Public Property Get PluginAutoload() 	: PluginAutoload = PLUGIN_AUTOLOAD 			: End Property
 
 	Private Property Get This()
-		This = Array(PluginCode, PluginName, PluginVersion, PluginGit, PluginDevURL, PluginFolder, PluginIcon, PluginRemovable, PluginCredits, PluginRoot, PluginFolderName, PluginDBTable )
+		This = Array(PluginCode, PluginName, PluginVersion, PluginGit, PluginDevURL, PluginFolder, PluginIcon, PluginRemovable, PluginCredits, PluginRoot, PluginFolderName, PluginDBTable, PluginAutoload)
 	End Property
 	'---------------------------------------------------------------
 	' Plugin Defines
