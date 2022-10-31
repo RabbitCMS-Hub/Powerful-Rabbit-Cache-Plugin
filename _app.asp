@@ -171,6 +171,7 @@ Class Powerful_Rabbit_Cache_Plugin
 		'--------------------------------------------------------
 		With Response
 			'------------------------------------------------------------------------------------------
+				PLUGIN_ACTIVATE_FROM_FILE = True
 				PLUGIN_PANEL_MASTER_HEADER This()
 			'------------------------------------------------------------------------------------------
 			.Write "<div class=""row"">"
@@ -178,18 +179,23 @@ Class Powerful_Rabbit_Cache_Plugin
 			.Write "    	<div class=""alert alert-info"">web.config dosyasına yazma izni vermeyi unutmayın</div>"
 			.Write "    </div>"
 			.Write "    <div class=""col-lg-3 col-sm-12"">"
+			PLUGIN_ACTIVATE_FROM_FILE = True
 			.Write 			QuickSettings("select", ""& PLUGIN_CODE &"_TYPE", "Önbellekleme Türü", "0#Fiziksel Depolama|1#RAM Depolama", TO_FILE)
 			.Write "    </div>"
 			.Write "    <div class=""col-lg-3 col-sm-12"">"
+			PLUGIN_ACTIVATE_FROM_FILE = True
 			.Write 			QuickSettings("select", ""& PLUGIN_CODE &"_TIMING", "Önbellekleme Zamanı", "0#Dakika|1#Saat|2#Gün", TO_FILE)
 			.Write "    </div>"
 			.Write "    <div class=""col-lg-3 col-sm-12"">"
+			PLUGIN_ACTIVATE_FROM_FILE = True
 			.Write 			QuickSettings("number", ""& PLUGIN_CODE &"_TIMING_VAL", "(Dakika,Saat,Gün)' de bir", "", TO_FILE)
 			.Write "    </div>"
 			.Write "    <div class=""col-lg-3 col-sm-12"">"
+			PLUGIN_ACTIVATE_FROM_FILE = True
 			.Write 			QuickSettings("select", ""& PLUGIN_CODE &"_COMPRESSOR", "Belleklenmiş Dosyayı Sıkıştır", "0#Hayır|1#Evet", TO_FILE)
 			.Write "    </div>"
 			.Write "    <div class=""col-lg-12 col-sm-12"">"
+			PLUGIN_ACTIVATE_FROM_FILE = True
 			.Write 			QuickSettings("tag", ""& PLUGIN_CODE &"_EXCLUDE", "Cache Alınmayacak Uzantı ve Adres Belirteçleri", "", TO_FILE)
 			.Write "    </div>"
 			.Write "    <div class=""col-lg-12 col-sm-12"">"
@@ -295,7 +301,7 @@ Class Powerful_Rabbit_Cache_Plugin
     	'-------------------------------------------------------------------------------------
     	' PluginTemplate Register App
     	'-------------------------------------------------------------------------------------
-    	class_register()
+    	' class_register()
 	End Sub
 	'---------------------------------------------------------------
 	' Class First Init
@@ -340,12 +346,12 @@ Class Powerful_Rabbit_Cache_Plugin
 	'---------------------------------------------------------------
 	' 
 	'---------------------------------------------------------------
-	Private Function GetCacheQueryString() 'String Döner
-		Dim strSonuc
+	Private Function GetCacheQueryString()
 		Dim var
+		Dim strSonuc
+			strSonuc = vbNullString
 		Dim strAyir
-		strSonuc = vbNullString
-		strAyir = vbNullString
+			strAyir = vbNullString
 		For Each var In Request.QueryString
 			If var <> "cache" Then
 				strSonuc = strSonuc & strAyir & var & "_" & Request.QueryString(var)
@@ -393,7 +399,7 @@ Class Powerful_Rabbit_Cache_Plugin
 				strDeger = clearField2(Request.QueryString("404;https://"& strYonURLs &":443"& strYonLinks &"?"& deger &"")) 
 			End If
 		Else 
-				strDeger = clearField2(Request.QueryString("404;http://"& strYonURLs &":80"& strYonLinks &"?"& deger &"")) 
+			strDeger = clearField2(Request.QueryString("404;http://"& strYonURLs &":80"& strYonLinks &"?"& deger &"")) 
 		End If
 
 		If strDeger = "" Then 
@@ -444,6 +450,7 @@ Class Powerful_Rabbit_Cache_Plugin
 
 		Data = replace(ChangeCSRF(Data), "[:CSFRTOKEN:]", "data-token='"& AntiCSRF.GetCSFRToken() &"'")
 		Data = replace(Data, "nocache=", "nocache="& kod(8,"") )
+		' Data = replace(Data, "/*Rabbit Mustache*/", "let rabbitTimeStart=Date.now(); /*Rabbit Mustache*/")
 		
 		ChangeDynamics = Data
 	End Function
@@ -807,7 +814,7 @@ Class Powerful_Rabbit_Cache_Plugin
 		cm=cm+"|  |\  \ \ '-'  || `-' || `-' ||  |  |  |  '  '--'\|  |   |  |.-'    | "+vbcrlf
 		cm=cm+"`--' '--' `--`--' `---'  `---' `--'  `--'   `-----'`--'   `--'`-----'  "+vbcrlf
 		cm=cm+"-=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=-="+vbcrlf
-		cm=cm+ "- RabbitCMS SuperCache System Active (c) 2018" + vbcrlf
+		cm=cm+ "- Powerful Rabbit Cache Plugin (c) 2018" + vbcrlf
 		cm=cm+ "- This Page Cached @ "& Now() &" "+vbcrlf
 		cm=cm+ "- Cache for "& fintOnbellekAralik &" "& CACHE_TYPE(fintOnbellekZaman) &" on pyhisical "+vbcrlf
 		If Request.ServerVariables("HTTP_X-Forwarded-Proto") = "https" Then 
@@ -923,7 +930,7 @@ Class Powerful_Rabbit_Cache_Plugin
 		cm=cm+"|  |\  \ \ '-'  || `-' || `-' ||  |  |  |  '  '--'\|  |   |  |.-'    | "+vbcrlf
 		cm=cm+"`--' '--' `--`--' `---'  `---' `--'  `--'   `-----'`--'   `--'`-----'  "+vbcrlf
 		cm=cm+"-=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=-="+vbcrlf
-		cm=cm+ "- RabbitCMS SuperCache System Active (c) 2018" + vbcrlf
+		cm=cm+ "- Powerful Rabbit Cache Plugin (c) 2018" + vbcrlf
 		cm=cm+ "- This Page Cached @ "& Now() &" "+vbcrlf
 		cm=cm+ "- Cache for "& fintOnbellekAralik &" "& CACHE_TYPE(fintOnbellekZaman) &" on memory "+vbcrlf
 		If Request.ServerVariables("HTTP_X-Forwarded-Proto") = "https" Then 
