@@ -69,7 +69,7 @@ Class Powerful_Rabbit_Cache_Plugin
 		'--------------------------------------------------------
 		' Sub Page 
 		'--------------------------------------------------------
-		If Query.Data("Page") = "REMOVE:OneFile" Then
+		If Query.Data("Page") = "AJAX:OneFile" Then
 			' Call PluginPage("Header")
 
 		    TheFile     = Query.Data("fileName")
@@ -91,7 +91,7 @@ Class Powerful_Rabbit_Cache_Plugin
 		'--------------------------------------------------------
 		' Sub Page 
 		'--------------------------------------------------------
-		If Query.Data("Page") = "REMOVE:CachedFiles" Then
+		If Query.Data("Page") = "AJAX:CachedFiles" Then
     		Call PluginPage("Header")
     		
     		Call SuperCacheTemizle()
@@ -212,7 +212,7 @@ Class Powerful_Rabbit_Cache_Plugin
 			.Write "        <a open-iframe href=""ajax.asp?Cmd=PluginSettings&PluginName="& PLUGIN_CODE &"&Page=SHOW:CachedFiles"" class=""btn btn-sm btn-primary"">"
 			.Write "        	Önbelleklenmiş Dosyaları Göster"
 			.Write "        </a>"
-			.Write "        <a open-iframe href=""ajax.asp?Cmd=PluginSettings&PluginName="& PLUGIN_CODE &"&Page=REMOVE:CachedFiles"" class=""btn btn-sm btn-danger"">"
+			.Write "        <a open-iframe href=""ajax.asp?Cmd=PluginSettings&PluginName="& PLUGIN_CODE &"&Page=AJAX:CachedFiles"" class=""btn btn-sm btn-danger"">"
 			.Write "        	Tüm Önbelleği Temizle"
 			.Write "        </a>"
 			.Write "    </div>"
